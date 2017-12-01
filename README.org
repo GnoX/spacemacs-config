@@ -1,0 +1,6 @@
+* GnoX spacemacs layers and configs
+
+This is my spacemacs configuration, it won't probably work on your system since
+there are some hard-coded paths and encrypted secrets.
+
+The ~.spacemacs~ is intended to be symlinked into home folder.

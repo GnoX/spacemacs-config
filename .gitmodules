@@ -1,0 +1,6 @@
+[submodule "spacemacs-cmake-ide"]
+	path = spacemacs-cmake-ide
+	url = https://github.com/nagunn/spacemacs-cmake-ide.git
+[submodule "google-calendar"]
+	path = google-calendar
+	url = https://github.com/mhkc/google-calendar-layer
