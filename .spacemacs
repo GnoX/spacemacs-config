@@ -31,8 +31,12 @@
      slack
      deft
      (auto-completion :variables
+                      auto-completion-enable-snippets-in-popup t
+                      auto-completion-tab-key-behavior 'cycle
+                      auto-completion-return-key-behavior nil
                       auto-completion-enable-sort-by-usage t
                       auto-completion-complete-with-key-sequence "jk"
+                      auto-completion-enable-help-tooltip 'manual
                       :disabled-for: org)
      better-defaults
      google-calendar
@@ -46,7 +50,7 @@
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
-     ;; spell-checking
+     (spell-checking :variables spell-checking-enable-by-default nil)
      (syntax-checking :variables syntax-checking-enable-by-default nil)
      version-control
      latex
@@ -140,24 +144,46 @@
 
   (add-hook 'org-agenda-mode-hook (lambda() (org-gcal-sync)))
   (add-hook 'org-capture-after-finalize-hook 'google-calendar/sync-cal-after-capture)
-  (setq org-agenda-files (list "~/Dropbox/Notes/calendar.org"))
+  (setq org-agenda-files (list "~/Dropbox/Notes/calendar.org"
+                               "~/Dropbox/Notes/todo.org"
+                               "~/Dropbox/Notes/personal.trello"))
   )
 
 (defun dotspacemacs/user-config ()
   (setq-default helm-make-build-dir "build")
   (require 'helm-bookmark)
+
+  (define-key evil-normal-state-map "+" 'evil-numbers/inc-at-pt)
+  (define-key evil-normal-state-map "-" 'evil-numbers/dec-at-pt)
+  (define-key company-active-map (kbd "C-w") 'evil-delete-backward-word)
+  (add-hook 'text-mode-hook 'auto-fill-mode)
+
   (c-add-style "my"
                '((indent-tabs-mode . nil)
                  (c-basic-offset . 4)
                  (c-offsets-alist
-
                   (substatement-open . 0)
                   (inline-open . 0)
                   (statement-cont . c-lineup-assignments)
                   (inextern-lang . 0)
                   (innamespace . 0))))
 
+  (setq cfw:org-capture-template '("t" "Create trello todo" entry (file "~/Dropbox/Notes/personal.trello")
+                                   "* %^{Description}\nDEADLINE: %(cfw:org-capture-day)\n"))
+  (setq org-capture-templates
+        '(("a" "Appointment" entry (file  "~/Dropbox/Notes/calendar.org" )
+           "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
+          ("e" "Event" entry (file "~/Dropbox/Notes/calendar.org")
+           "* %^{Event}\n%^T\n%?")
+          ("l" "Link" entry (file+headline "~/Dropbox/Notes/links.org" "Links")
+           "* %? %^L %^g \n%T" :prepend t)
+          ("n" "Note" entry (file+headline "~/Dropbox/Notes/todo.org" "Note space")
+           "* %?\n%u" :prepend t)
+          ("y" "todo" entry (file+headline "~/Dropbox/Notes/todo.org" "Todos")
+           "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)))
 
+
+  (spacemacs/set-leader-keys "agd" 'org-gcal-delete-at-point)
 
   (setq exec-path (append exec-path '("/home/gnox/Development/tools/jdk1.8.0_131/bin/")))
 
@@ -174,9 +200,9 @@
    '( (emacs-lisp . t)
       (matlab . t)
       (plantuml . t)
-      (ditaa . t
-)
+      (ditaa . t)
       (python . t)))
+
   (setq org-src-fontify-natively t)
 
   (setq company-idle-delay 0.1)
@@ -193,7 +219,6 @@
   (setq-default dotspacemacs-configuration-layers
                 '((c-c++ :variables
                          c-c++-default-mode-for-headers 'c++-mode)))
-
   (global-git-commit-mode t)
   (setq org-hide-macro-markers t)
 
@@ -223,6 +248,20 @@
     "omtt" 'tempo-template-matlab-try
     "omtw" 'tempo-template-matlab-while
     "omtF" 'tempo-template-matlab-function)
+
+  (setq org-todo-keywords
+        (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
+
+  (setq org-todo-keyword-faces
+        (quote (("TODO" :foreground "red" :weight bold)
+                ("NEXT" :foreground "orange" :weight bold)
+                ("DONE" :foreground "forest green" :weight bold)
+                ("WAITING" :foreground "orange" :weight bold)
+                ("HOLD" :foreground "magenta" :weight bold)
+                ("CANCELLED" :foreground "forest green" :weight bold)
+                ("MEETING" :foreground "forest green" :weight bold)
+                ("PHONE" :foreground "forest green" :weight bold))))
 
   (require 'slack)
   (slack-register-team
@@ -260,9 +299,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ ;; '(org-trello-current-prefix-keybinding "C-c o" nil (org-trello))
  '(package-selected-packages
    (quote
-    (calfw-org org-gcal calfw all-the-icons-dired all-the-icons memoize font-lock+ plantuml-mode slack emojify circe oauth2 websocket org-trello ox-reveal deft ranger cdlatex yaml-mode winum web-mode vimrc-mode unfill thrift tagedit stan-mode slim-mode scss-mode scad-mode sass-mode qml-mode pug-mode pandoc-mode ox-pandoc ht org-ref pdf-tools key-chord ivy tablist org-category-capture opencl-mode matlab-mode less-css-mode julia-mode dash-functional helm-css-scss helm-bibtex parsebib haml-mode fuzzy emmet-mode dactyl-mode company-web web-completion-data company-emacs-eclim eclim cmake-ide levenshtein biblio biblio-core arduino-mode auctex-latexmk company-auctex auctex flycheck-ycmd company-ycmd ycmd request-deferred deferred stickyfunc-enhance srefactor glsl-mode irony-eldoc flycheck-irony company-irony-c-headers company-irony irony yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode helm-pydoc cython-mode company-anaconda anaconda-mode pythonic xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help disaster company-c-headers cmake-mode clang-format smeargle orgit org-projectile pcache org-present org org-pomodoro alert log4e gntp org-download mwim mmm-mode markdown-toc markdown-mode magit-gitflow htmlize helm-gitignore helm-company helm-c-yasnippet gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gh-md flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor diff-hl company-statistics company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed dash aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async quelpa package-build spacemacs-theme)))
+    (flyspell-correct-helm flyspell-correct company-quickhelp auto-dictionary calfw-org org-gcal calfw all-the-icons-dired all-the-icons memoize font-lock+ plantuml-mode slack emojify circe oauth2 websocket org-trello ox-reveal deft ranger cdlatex yaml-mode winum web-mode vimrc-mode unfill thrift tagedit stan-mode slim-mode scss-mode scad-mode sass-mode qml-mode pug-mode pandoc-mode ox-pandoc ht org-ref pdf-tools key-chord ivy tablist org-category-capture opencl-mode matlab-mode less-css-mode julia-mode dash-functional helm-css-scss helm-bibtex parsebib haml-mode fuzzy emmet-mode dactyl-mode company-web web-completion-data company-emacs-eclim eclim cmake-ide levenshtein biblio biblio-core arduino-mode auctex-latexmk company-auctex auctex flycheck-ycmd company-ycmd ycmd request-deferred deferred stickyfunc-enhance srefactor glsl-mode irony-eldoc flycheck-irony company-irony-c-headers company-irony irony yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode helm-pydoc cython-mode company-anaconda anaconda-mode pythonic xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help disaster company-c-headers cmake-mode clang-format smeargle orgit org-projectile pcache org-present org org-pomodoro alert log4e gntp org-download mwim mmm-mode markdown-toc markdown-mode magit-gitflow htmlize helm-gitignore helm-company helm-c-yasnippet gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gh-md flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor diff-hl company-statistics company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed dash aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async quelpa package-build spacemacs-theme)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
