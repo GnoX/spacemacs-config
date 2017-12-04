@@ -3,13 +3,10 @@
 This is my spacemacs configuration, it won't probably work on your system since
 there are some hard-coded paths and encrypted secrets.
 
-Clone by
-```git
-git clone https://github.com/GnoX/spacemacs-config.git ~/.emacs.d/private
-```
+Clone the repo =git clone https://github.com/GnoX/spacemacs-config.git ~/.emacs.d/private=
 
 The ~.spacemacs~ is intended to be symlinked into home folder.
 
-```sh
+#+begin_src sh
 ln -s ~/emacs.d/private/.spacemacs ~/.spacemacs
-```
+#+end_src
