@@ -4,3 +4,6 @@
 [submodule "google-calendar"]
 	path = google-calendar
 	url = https://github.com/mhkc/google-calendar-layer
+[submodule "journal"]
+	path = journal
+	url = https://github.com/borgnix/spacemacs-journal.git

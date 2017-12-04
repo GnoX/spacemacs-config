@@ -55,6 +55,7 @@
      version-control
      latex
      ;; irony
+     journal
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -179,7 +180,7 @@
            "* %? %^L %^g \n%T" :prepend t)
           ("n" "Note" entry (file+headline "~/Dropbox/Notes/todo.org" "Note space")
            "* %?\n%u" :prepend t)
-          ("y" "todo" entry (file+headline "~/Dropbox/Notes/todo.org" "Todos")
+          ("j" "todo" entry (file+headline "~/Dropbox/Notes/todo.org" "Todos")
            "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)))
 
 
@@ -193,6 +194,8 @@
   (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
   (add-hook 'doc-view-mode-hook 'auto-revert-mode)
   (add-hook 'ranger-mode-hook 'all-the-icons-dired-mode)
+
+  (setq org-journal-dir "~/Dropbox/Notes/journal/")
 
   (setq company-idle-delay 0.1)
   (org-babel-do-load-languages
@@ -289,7 +292,64 @@
                 ;;         (c++-include-paths))
                 '("-fopenmp=libomp")
                 '("-Iusr/lib/gcc/x86_64-linux-gnu/5/include/")))
-  )
+
+  ;; (custom-set-variables '(org2jekyll-blog-author "GnoX")
+  ;;                       '(org2jekyll-source-directory
+  ;;                         (expand-file-name "~/Dropbox/development/programs/Personal/org-gnox.github.io"))
+  ;;                       '(org2jekyll-jekyll-directory
+  ;;                         (expand-file-name "~/dropbox/development/programs/Personal/gnox.github.io"))
+  ;;                       '(org2jekyll-jekyll-drafts-dir "")
+  ;;                       '(org2jekyll-jekyll-posts-dir "_posts")
+  ;;                       '(org-publish-project-alist
+  ;;                         `(("default"
+  ;;                            :base-directory ,(org2jekyll-input-directory)
+  ;;                            :base-extension "org"
+  ;;                            :publishing-directory ,(org2jekyll-output-directory)
+  ;;                            :publishing-function org-html-publish-to-html
+  ;;                            :headline-levels 4
+  ;;                            :section-numbers nil
+  ;;                            :with-toc nil
+  ;;                            :html-head "<link rel=\"stylesheet\" href=\"./css/style.css\" type=\"text/css\"/>"
+  ;;                            :html-preamble t
+  ;;                            :recursive t
+  ;;                            :make-index t
+  ;;                            :html-extension "html"
+  ;;                            :body-only t)
+  ;;                           ("post"
+  ;;                            :base-directory ,(org2jekyll-input-directory)
+  ;;                            :base-extension "org"
+  ;;                            :publishing-directory ,(org2jekyll-output-directory org2jekyll-jekyll-posts-dir)
+  ;;                            :publishing-function org-html-publish-to-html
+  ;;                            :headline-levels 4
+  ;;                            :section-numbers nil
+  ;;                            :with-toc nil
+  ;;                            :html-head "<link rel=\"stylesheet\" href=\"./css/style.css\" type=\"text/css\"/>"
+  ;;                            :html-preamble t
+  ;;                            :recursive t
+  ;;                            :make-index t
+  ;;                            :html-extension "html"
+  ;;                            :body-only t)
+  ;;                           ("images"
+  ;;                            :base-directory ,(org2jekyll-input-directory "img")
+  ;;                            :base-extension "jpg\\|gif\\|png"
+  ;;                            :publishing-directory ,(org2jekyll-output-directory "img")
+  ;;                            :publishing-function org-publish-attachment
+  ;;                            :recursive t)
+  ;;                           ("js"
+  ;;                            :base-directory ,(org2jekyll-input-directory "js")
+  ;;                            :base-extension "js"
+  ;;                            :publishing-directory ,(org2jekyll-output-directory "js")
+  ;;                            :publishing-function org-publish-attachment
+  ;;                            :recursive t)
+  ;;                           ("css"
+  ;;                            :base-directory ,(org2jekyll-input-directory "css")
+  ;;                            :base-extension "css\\|el"
+  ;;                            :publishing-directory ,(org2jekyll-output-directory "css")
+  ;;                            :publishing-function org-publish-attachment
+  ;;                            :recursive t)
+  ;;                           ("web" :components ("images" "js" "css"))))
+  ;; )
+)
 
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -299,10 +359,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- ;; '(org-trello-current-prefix-keybinding "C-c o" nil (org-trello))
+ '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    (quote
-    (flyspell-correct-helm flyspell-correct company-quickhelp auto-dictionary calfw-org org-gcal calfw all-the-icons-dired all-the-icons memoize font-lock+ plantuml-mode slack emojify circe oauth2 websocket org-trello ox-reveal deft ranger cdlatex yaml-mode winum web-mode vimrc-mode unfill thrift tagedit stan-mode slim-mode scss-mode scad-mode sass-mode qml-mode pug-mode pandoc-mode ox-pandoc ht org-ref pdf-tools key-chord ivy tablist org-category-capture opencl-mode matlab-mode less-css-mode julia-mode dash-functional helm-css-scss helm-bibtex parsebib haml-mode fuzzy emmet-mode dactyl-mode company-web web-completion-data company-emacs-eclim eclim cmake-ide levenshtein biblio biblio-core arduino-mode auctex-latexmk company-auctex auctex flycheck-ycmd company-ycmd ycmd request-deferred deferred stickyfunc-enhance srefactor glsl-mode irony-eldoc flycheck-irony company-irony-c-headers company-irony irony yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode helm-pydoc cython-mode company-anaconda anaconda-mode pythonic xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help disaster company-c-headers cmake-mode clang-format smeargle orgit org-projectile pcache org-present org org-pomodoro alert log4e gntp org-download mwim mmm-mode markdown-toc markdown-mode magit-gitflow htmlize helm-gitignore helm-company helm-c-yasnippet gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gh-md flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor diff-hl company-statistics company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed dash aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async quelpa package-build spacemacs-theme)))
+    (org-journal hyde org2jekyll kv flyspell-correct-helm flyspell-correct company-quickhelp auto-dictionary calfw-org org-gcal calfw all-the-icons-dired all-the-icons memoize font-lock+ plantuml-mode slack emojify circe oauth2 websocket org-trello ox-reveal deft ranger cdlatex yaml-mode winum web-mode vimrc-mode unfill thrift tagedit stan-mode slim-mode scss-mode scad-mode sass-mode qml-mode pug-mode pandoc-mode ox-pandoc ht org-ref pdf-tools key-chord ivy tablist org-category-capture opencl-mode matlab-mode less-css-mode julia-mode dash-functional helm-css-scss helm-bibtex parsebib haml-mode fuzzy emmet-mode dactyl-mode company-web web-completion-data company-emacs-eclim eclim cmake-ide levenshtein biblio biblio-core arduino-mode auctex-latexmk company-auctex auctex flycheck-ycmd company-ycmd ycmd request-deferred deferred stickyfunc-enhance srefactor glsl-mode irony-eldoc flycheck-irony company-irony-c-headers company-irony irony yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode helm-pydoc cython-mode company-anaconda anaconda-mode pythonic xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help disaster company-c-headers cmake-mode clang-format smeargle orgit org-projectile pcache org-present org org-pomodoro alert log4e gntp org-download mwim mmm-mode markdown-toc markdown-mode magit-gitflow htmlize helm-gitignore helm-company helm-c-yasnippet gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gh-md flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor diff-hl company-statistics company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed dash aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async quelpa package-build spacemacs-theme)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
