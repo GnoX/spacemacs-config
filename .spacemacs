@@ -146,10 +146,14 @@
 
   (add-hook 'org-agenda-mode-hook (lambda() (org-gcal-sync)))
   (add-hook 'org-capture-after-finalize-hook 'google-calendar/sync-cal-after-capture)
-  (setq org-agenda-files (list "~/Dropbox/Notes/calendar.org"
-                               "~/Dropbox/Notes/todo.org"
-                               "~/Dropbox/Notes/personal.trello"))
-  )
+  (setq org-gcal-file-alist '(("gc3b7qj0n8ii4p0muv19ju8hek@group.calendar.google.com"
+                               . "~/Dropbox/Notes/timetable.org")
+                              ("x.jozef.mlaka@gmail.com" . "~/Dropbox/Notes/calendar.org")
+                              ))
+
+  (setq org-agenda-files (list "~/Dropbox/Notes/todo.org"
+                               "~/Dropbox/Notes/personal.trello"
+                               "~/Dropbox/Notes/timetable.org")))
 
 (defun dotspacemacs/user-config ()
   (setq-default helm-make-build-dir "build")
@@ -176,8 +180,8 @@
         '(("a" "Appointment" entry (file  "~/Dropbox/Notes/calendar.org" )
            "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
           ("e" "Event" entry (file "~/Dropbox/Notes/calendar.org")
-           "* %^{Event}\n%^T\n%?")
-          ("l" "Link" entry (file+headline "~/Dropbox/Notes/links.org" "Links")
+           "* Event %^{Event}\n%^T\n%?")
+          ("l" "Link" entry (file+headline "~/Dropbox/Notes/todo.org" "Links")
            "* %? %^L %^g \n%T" :prepend t)
           ("n" "Note" entry (file+headline "~/Dropbox/Notes/todo.org" "Note space")
            "* %?\n%u" :prepend t)
@@ -253,6 +257,32 @@
     "omtw" 'tempo-template-matlab-while
     "omtF" 'tempo-template-matlab-function)
 
+  (defun get-all-trello-ids-from-org-file (file)
+    (let ((parsetree
+           (with-temp-buffer
+             (insert-file-contents file)
+             (org-mode)
+             (org-element-parse-buffer 'headline))))
+      (org-element-map parsetree 'headline (lambda (hl) (org-element-property :orgtrello-id hl)))))
+
+  (defun get-org-file-headlines-for-calendar()
+    (let ((parsetree
+           (with-temp-buffer
+             (insert-file-contents "~/Dropbox/Notes/personal.trello")
+             (org-mode)
+             (org-element-parse-buffer 'headline))))
+      (let ((calendar-headlines (get-all-headlines-from-org-file "~/Dropbox/Notes/calendar.org")))
+        (org-element-map parsetree 'headline
+          (lambda (hl)
+            (let ((deadline (org-element-property :deadline hl)))
+              (when deadline
+                (let ((todo-keyword (org-element-property :todo-keyword hl))
+                      (title (org-element-property :title hl))
+                      (link-id (org-element-property :ORGTRELLO-ID hl)))
+                  (concat "* " todo-keyword " " title "\\n"
+                          (plist-get (car (cdr deadline)) ':raw-value) "\\n"
+                          "https://trello.com/c/" link-id)
+                  ))))))))
 
   (setq org-link-abbrev-alist '(("trello" . "~/Dropbox/Notes/personal.trello::%s")))
 
