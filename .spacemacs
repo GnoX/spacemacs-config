@@ -1,6 +1,4 @@
 ;; -*- mode: emacs-lisp -*-
-;; This file is loaded by Spacemacs at startup.
-;; It must be stored in your home directory.
 
 (defun dotspacemacs/layers ()
   (setq-default
@@ -18,7 +16,9 @@
      vimscript
      python
      ;; (extra-langs :variables matlab-mode)
-     (c-c++ :variables c-c++-enable-clang-support t)
+     (c-c++ :variables
+            c-c++-enable-clang-support t
+            c-c++-default-mode-for-headers 'c++-mode)
      ;; ycmd
      dash
      spacemacs-cmake-ide
@@ -55,15 +55,12 @@
      (syntax-checking :variables syntax-checking-enable-by-default nil)
      version-control
      latex
+     gtags
+     shaders
      ;; irony
      journal
      )
-   ;; List of additional packages that will be installed without being
-   ;; wrapped in a layer. If you need some configuration for these
-   ;; packages, then consider creating a layer. You can also put the
-   ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '(glsl-mode
-                                      opencl-mode
+   dotspacemacs-additional-packages '(opencl-mode
                                       cdlatex
                                       all-the-icons
                                       all-the-icons-dired
@@ -146,10 +143,10 @@
 
   (add-hook 'org-agenda-mode-hook (lambda() (org-gcal-sync)))
   (add-hook 'org-capture-after-finalize-hook 'google-calendar/sync-cal-after-capture)
+  (setq org-crypt-key "Jozef Mlaka")
   (setq org-gcal-file-alist '(("gc3b7qj0n8ii4p0muv19ju8hek@group.calendar.google.com"
                                . "~/Dropbox/Notes/timetable.org")
-                              ("x.jozef.mlaka@gmail.com" . "~/Dropbox/Notes/calendar.org")
-                              ))
+                              ("x.jozef.mlaka@gmail.com" . "~/Dropbox/Notes/calendar.org")))
 
   (setq org-agenda-files (list "~/Dropbox/Notes/todo.org"
                                "~/Dropbox/Notes/personal.trello"
@@ -158,6 +155,7 @@
 (defun dotspacemacs/user-config ()
   (setq-default helm-make-build-dir "build")
   (require 'helm-bookmark)
+  (org-crypt-use-before-save-magic)
 
   (define-key evil-normal-state-map "+" 'evil-numbers/inc-at-pt)
   (define-key evil-normal-state-map "-" 'evil-numbers/dec-at-pt)
@@ -199,6 +197,7 @@
   (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
   (add-hook 'doc-view-mode-hook 'auto-revert-mode)
   (add-hook 'ranger-mode-hook 'all-the-icons-dired-mode)
+  (global-auto-revert-mode t)
 
   (setq org-journal-dir "~/Dropbox/Notes/journal/")
 
@@ -222,7 +221,8 @@
   (push '(other . "my") c-default-style)
   (put 'helm-make-build-dir 'safe-local-variable 'stringp)
 
-  (setq org-latex-create-formula-image-program 'dvipng)
+  (setq org-latex-create-formula-image-program 'imagemagick)
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 2.0))
 
   (setq-default dotspacemacs-configuration-layers
                 '((c-c++ :variables
@@ -256,6 +256,7 @@
     "omtt" 'tempo-template-matlab-try
     "omtw" 'tempo-template-matlab-while
     "omtF" 'tempo-template-matlab-function)
+
 
   (defun get-all-trello-ids-from-org-file (file)
     (let ((parsetree
@@ -302,6 +303,8 @@
       (string-remove-prefix "trello:" link)))
 
   (setf org-make-link-description-function #'org-link-describe)
+  (setq-default org-download-image-dir "./img/")
+  (setq-default org-download-heading-lvl nil)
 
   (setq org-todo-keywords
         (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
@@ -414,11 +417,12 @@
  ;; '(org-trello-current-prefix-keybinding "C-c o" nil (org-trello))
  '(package-selected-packages
    (quote
-    (zeal-at-point helm-dash org-journal hyde org2jekyll kv flyspell-correct-helm flyspell-correct company-quickhelp auto-dictionary calfw-org org-gcal calfw all-the-icons-dired all-the-icons memoize font-lock+ plantuml-mode slack emojify circe oauth2 websocket org-trello ox-reveal deft ranger cdlatex yaml-mode winum web-mode vimrc-mode unfill thrift tagedit stan-mode slim-mode scss-mode scad-mode sass-mode qml-mode pug-mode pandoc-mode ox-pandoc ht org-ref pdf-tools key-chord ivy tablist org-category-capture opencl-mode matlab-mode less-css-mode julia-mode dash-functional helm-css-scss helm-bibtex parsebib haml-mode fuzzy emmet-mode dactyl-mode company-web web-completion-data company-emacs-eclim eclim cmake-ide levenshtein biblio biblio-core arduino-mode auctex-latexmk company-auctex auctex flycheck-ycmd company-ycmd ycmd request-deferred deferred stickyfunc-enhance srefactor glsl-mode irony-eldoc flycheck-irony company-irony-c-headers company-irony irony yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode helm-pydoc cython-mode company-anaconda anaconda-mode pythonic xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help disaster company-c-headers cmake-mode clang-format smeargle orgit org-projectile pcache org-present org org-pomodoro alert log4e gntp org-download mwim mmm-mode markdown-toc markdown-mode magit-gitflow htmlize helm-gitignore helm-company helm-c-yasnippet gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gh-md flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor diff-hl company-statistics company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed dash aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async quelpa package-build spacemacs-theme)))
+    (helm-gtags ggtags zeal-at-point helm-dash org-journal hyde org2jekyll kv flyspell-correct-helm flyspell-correct company-quickhelp auto-dictionary calfw-org org-gcal calfw all-the-icons-dired all-the-icons memoize font-lock+ plantuml-mode slack emojify circe oauth2 websocket org-trello ox-reveal deft ranger cdlatex yaml-mode winum web-mode vimrc-mode unfill thrift tagedit stan-mode slim-mode scss-mode scad-mode sass-mode qml-mode pug-mode pandoc-mode ox-pandoc ht org-ref pdf-tools key-chord ivy tablist org-category-capture opencl-mode matlab-mode less-css-mode julia-mode dash-functional helm-css-scss helm-bibtex parsebib haml-mode fuzzy emmet-mode dactyl-mode company-web web-completion-data company-emacs-eclim eclim cmake-ide levenshtein biblio biblio-core arduino-mode auctex-latexmk company-auctex auctex flycheck-ycmd company-ycmd ycmd request-deferred deferred stickyfunc-enhance srefactor glsl-mode irony-eldoc flycheck-irony company-irony-c-headers company-irony irony yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode helm-pydoc cython-mode company-anaconda anaconda-mode pythonic xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help disaster company-c-headers cmake-mode clang-format smeargle orgit org-projectile pcache org-present org org-pomodoro alert log4e gntp org-download mwim mmm-mode markdown-toc markdown-mode magit-gitflow htmlize helm-gitignore helm-company helm-c-yasnippet gnuplot gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gh-md flycheck-pos-tip pos-tip flycheck evil-magit magit magit-popup git-commit with-editor diff-hl company-statistics company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump f s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed dash aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async quelpa package-build spacemacs-theme)))
  '(paradox-github-token t)
  '(safe-local-variable-values
    (quote
-    ((projectile-project-compilation-cmd . "cd _build; and cmake ..; and cmake --build . --target raw3_raycast; and ./raw3_raycast")
+    ((projectile-project-compilation-cmd . "cd _build; and cmake -DCMAKE_BUILD_TYPE=Release ..; and cmake --build . --target raw3_raytrace; and ./raw3_raytrace")
+     (projectile-project-compilation-cmd . "cd _build; and cmake ..; and cmake --build . --target raw3_raycast; and ./raw3_raycast")
      (org-export-in-background . t)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
